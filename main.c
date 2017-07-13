@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 	remove(APP_LOG);
 
 	//
-	print("%s - %s\n%s - %s\n", APP_NAME, APP_DATE, APP_AUTH, APP_SITE);
+	print("%s - %s\n%s\n%s\n", APP_NAME, APP_DATE, APP_AUTH, APP_SITE);
 
 	// generate argument cvars
 	var_thresh = cvar_newfloat("thresh", DEFAULT_THRESH);
@@ -179,6 +179,8 @@ int main(int argc, char **argv)
 		print(" smooths: smoothing passes on heightmap data before meshing. (default = %d)", DEFAULT_SMOOTHS);
 		print(" hscale: horizontal scale, pixels-per-inch. (default = %d)", DEFAULT_HSCALE);
 		print(" vscale: vertical scaling, image gradiations-per-inch. (default = %d)", DEFAULT_VSCALE);
+		print("");
+		system("PAUSE");
 		return 0;
 	}
 
@@ -237,6 +239,7 @@ int main(int argc, char **argv)
 	// free image data
 	free(tga);
 
+	print("");
 	system("PAUSE");
 	return 0;
 }

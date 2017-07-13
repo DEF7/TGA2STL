@@ -8,3 +8,4 @@
  - auto-scale/crop image to power-of-two, or properly interpolate when performing patch subdivision
 		+ option '-margin XXX' where XXX is 0.0-1.0 designating height of margin outside image
 
+ - loading bitmaps and jpegs

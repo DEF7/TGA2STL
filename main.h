@@ -3,7 +3,7 @@
 
 #define APP_NAME	"TGA2STL"
 #define APP_DATE	__DATE__
-#define APP_AUTH	"Charlie Van Noland"
+#define APP_AUTH	"Charlie \'Deftware\' Van Noland"
 #define APP_SITE	"deftware.blogspot.com"
 #define APP_LOG		"log.txt"
 
