@@ -97,7 +97,7 @@ extraResourceOptions=
 [Other]
 1=todo.txt
 [History]
-patch.c,3578
-math.h,975
-math.c,0
-main.c,387
+todo.txt,224
+patch.c,3146
+main.h,211
+main.c,495
