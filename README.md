@@ -24,9 +24,25 @@ If you run TGA2STL from the command-line without an input image argument it will
 
 'vscale', similarly, establishes how many mesh units the RGB 0-255 range should span. The default is 256, thus the full range of an image's 0-255 color range is capable of generating a mesh with a vertical size of one mesh unit. If you want a shallower mesh then use a larger number. For a mesh that's 0.25 units tall you would use 1024, as the 0-255 range goes into 1024 four times.
 
+![test depthmap](image_depthmap.jpg)
+Here's a 512x512 depthmap I've been using for testing.
+
+![thresh 0.25](image_thresh0.25.jpg)
+This is the mesh generated from the depthmap using a subdivide threshold of 0.25 with all other parameters at their defaults. (39k triangles)
+
+![thresh 0.125](image_thresh0.125.jpg)
+Here's the mesh output with thresh set to 0.125. (78k triangles)
+
+![thresh 0.125](image_thresh0.0625.jpg)
+...and 0.0625. (135k triangles)
+
 
 # Limitations and Requirements
--TGA only
--non-RLE
--square
--power of two
+There are some limitations as to what TGA2STL can work with insofar as the depthmap images themselves are concerned:
+
+- Depthmap TGA files must not be run-length encoded. The origin can, however, be top-left or bottom-left (some imaging programs like to default to either, which can make loading TGA's tricky).
+
+- Depthmap dimensions must be a power of two. It *will* work with non-power-of-two dimensions, but you'll get a gross pixellated stair-stepping resultant mesh, which is a product of the nearest sampling of the depthmap data. With the addition of a linear interpolation, at the very least, this restriction would be resolved.
+
+- Rectangular depthmaps (i.e. non-square) *do* work but the mesh division isn't uniform. The starting base triangle mesh that is initialized is matched to the input image dimensions, but divisions still occur at halfway points and are not distributed based on the width/height ratio of the image. Not sure if this is something I'm interested in ever resolving.
+
