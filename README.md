@@ -25,15 +25,19 @@ If you run TGA2STL from the command-line without an input image argument it will
 'vscale', similarly, establishes how many mesh units the RGB 0-255 range should span. The default is 256, thus the full range of an image's 0-255 color range is capable of generating a mesh with a vertical size of one mesh unit. If you want a shallower mesh then use a larger number. For a mesh that's 0.25 units tall you would use 1024, as the 0-255 range goes into 1024 four times.
 
 ![test depthmap](image_depthmap.jpg)
+
 Here's a 512x512 depthmap I've been using for testing.
 
 ![thresh 0.25](image_thresh0.25.jpg)
+
 This is the mesh generated from the depthmap using a subdivide threshold of 0.25 with all other parameters at their defaults. (39k triangles)
 
 ![thresh 0.125](image_thresh0.125.jpg)
+
 Here's the mesh output with thresh set to 0.125. (78k triangles)
 
 ![thresh 0.125](image_thresh0.0625.jpg)
+
 ...and 0.0625. (135k triangles)
 
 

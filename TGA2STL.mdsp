@@ -95,6 +95,7 @@ extraResourceOptions=
 6=patch.h
 [Resource]
 [Other]
+1=todo.txt
 [History]
 patch.c,3578
 math.h,975
