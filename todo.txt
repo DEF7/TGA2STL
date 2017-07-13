@@ -1,0 +1,10 @@
+
+
+ - remove triangle/STL file buffer and directly output triangle binary tree leaf nodes to STL file
+
+ - add origin-setting arguments 'orgx/orgy', setting 0.0-1.0 fraction of image as origin
+		both default to 0.5 (center)
+
+ - auto-scale/crop image to power-of-two, or properly interpolate when performing patch subdivision
+		+ option '-margin XXX' where XXX is 0.0-1.0 designating height of margin outside image
+
