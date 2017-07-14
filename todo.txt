@@ -9,3 +9,5 @@
 		+ option '-margin XXX' where XXX is 0.0-1.0 designating height of margin outside image
 
  - loading bitmaps and jpegs
+
+ - better calculation/detection of triangle vs heightmap deviation to prevent coincidental misses
