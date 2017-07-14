@@ -1,26 +1,11 @@
-# TGA2STL
+# TGA2STL - TGA depthmap image to STL 3D mesh generator
 This is a stand-alone command-line utility for generating STL 'stereolithography' meshes from TGA depthmap images. This is useful for anybody who wishes to use their existing CAM or 3D-printer model-slicing software for milling/printing out a 3D surface that is described using a grayscale depth/height map, and require a 3D mesh as input for their software. TGA2STL utilizes an algorithm derived from one that was used during the pre-GPU days of real-time terrain LOD rendering called ROAM (Real-time Optimally Adaptive Meshing). The purpose of this program is to allow for light-weight meshes with a fewer number of triangles to depict the surface described by an input depthmap, wasting as few vertices and triangles as possible. This is accomplished by effectively only adding triangles where the surface varies, and neglecting areas that are more planar.
+
+![spiralpyramid.tga, thresh = 0.0625, 36k triangles](image_example.jpg)
 
 TGA2STL is very fast. It can generate 100k triangle meshes in a fraction of a second (less than 500ms) on a 3.5ghz machine. Many of the existing grid-based depthmap-to-mesh programs out there are extremely slow because of the language they're written in and/or because they generate huge unmanageable and unwieldy meshes with tons of triangles.
 
 There are several depthmap/heightmap-to-mesh programs out there but the meshes that they output are cumbersome to work with. These programs strictly generate a grid of triangles with vertex heights dictated by input image pixel brightness. In contrast, TGA2STL starts with a coarse grid of triangles and subdivides them when they do not conform to the heightmap to within a threshold value. The end result is a mesh that is more friendly to 3D programs, such as CAM software, 3D printing model-slicers, and modeling/animation packages. By only creating smaller triangles where there is more detail and 'variance' the mesh uses only as many triangles as it needs to osculate the surface represented by the 2D depthmap.
-
-
-
-# Usage
-Using TGA2STL is as easy as dragging and dropping your 24 or 32 bit TGA depthmap onto TGA2STL.EXE which will then popup a window showing details about the binary tree nodes and number of triangles generated. This will automatically generate a mesh using the default parameters. If you run TGA2STL by itself you will be presented with the command-line usage information:
-
-![TGA2STL usage](image_usage.jpg)
-
-'thresh' designates the threshold at which the mesh's deviation from the input image triggers a triangle subdivide.
-
-'smooths' sets the number of simple 3x3 height value averages to perform across the input image data before generating the mesh. This helps to prevent extraneous subdivisions from occurring, minimizing triangle-count. However, this is at the expense of retaining detail in the final mesh.
-
-'hscale' allows establishing how many pixels to each mesh unit. If you have a 512x512 image, for instance, and set hscale to 128 then the output mesh will be 4x4 model units. I personally interpret them as inches, and so hscale can be considered pixels-per-inch.
-
-'vscale', similarly, establishes how many mesh units the RGB 0-255 range should span. The default is 256, thus the full range of an image's 0-255 color range is capable of generating a mesh with a vertical size of one mesh unit. If you want a shallower mesh then use a larger number. For a mesh that's 0.25 units tall you would use 1024, as the 0-255 range goes into 1024 four times, and is thus 0.25 x 1024.
-
-I have created a triplet of batch files which you can also drag-drop your TGA depthmaps onto, each with a different threshold value. You can create your own batch files with your own custom parameters to do the same thing if the given ones don't suit your needs. If the mesh is too tall then add '-vscale XYZ' with XYZ replaced with a larger value than the default. If your depthmap is too noisy, making lots of little polygonal surface discontinuities, then use '-smooth XYZ' with an XYZ greater than the default 2 smooth passes. Conversely, if your mesh is coming out too smooth, then use a smaller number of smooths, or '0'. Etcetera.
 
 
 # Example Output
@@ -44,6 +29,32 @@ Here's the mesh output with thresh set to 0.125. (78k triangles)
 You can see that by halving the subdivision threshold value the output mesh triangle count doubles.
 
 
+# What is a TGA?
+TGA (or 'Targa') is a lossless image format that was more popular in the past. It's a simple format to code around for reading or writing images. However, TGA files can be large due to their raw pixel data format. A 24-bit 256x256 TGA is 193KB.
+
+Virtually every raster imaging program supports loading/saving Targa TGA images, including GIMP and Photoshop. If you have depthmaps that are in another format you should have no trouble opening them in either of these programs and exporting to a non-RLE TGA.
+
+
+# Usage
+Using TGA2STL is as simple as dragging and dropping your 24 or 32 bit TGA depthmap onto TGA2STL.EXE. This runs TGA2STL with the filepath as the only command-line argument which will run showing details about the number of binary tree nodes and triangles that were generated. Supplying only an input file argument will use default meshing parameters and generating an STL mesh file with the input .TGA's filepath and its .TGA extension swapped out for .STL. All of the color channels found in the TGA, including the alpha channel if the TGA is 32-bit, are averaged together for each pixel to calculate its corresponding depth value.
+
+If you run TGA2STL by itself, without dropping a TGA file on it or from the command-line without any arguments, you will be presented with the command-line usage information:
+
+![TGA2STL usage](image_usage.jpg)
+
+'thresh' designates the threshold at which the mesh's deviation from the depthmap image input triggers a triangle subdivide.
+
+'smooths' sets the number of simple 3x3 depth value averages to perform across the input image data before generating the mesh. This helps to prevent extraneous subdivisions from occurring, minimizing triangle-count. However, this is at the expense of retaining detail in the final mesh.
+
+'hscale' allows establishing how many pixels to each mesh unit. If you have a 512x512 image, for instance, and set hscale to 128 then the output mesh will be 4x4 model units. I personally interpret them as inches, and so hscale can be considered pixels-per-inch.
+
+'vscale', similarly, establishes how many mesh units the RGB 0-255 range should span. The default is 256, thus the full range of an image's 0-255 color range is capable of generating a mesh with a vertical size of one mesh unit. If you want a shallower mesh then use a larger number. For a mesh that's 0.25 units tall you would use 1024, as the 0-255 range goes into 1024 four times, and is thus 0.25 x 1024.
+
+I have created a triplet of batch files which you can also drag-drop your TGA depthmap images onto, each with a different triangle subdivision threshold value. You can create your own batch files with your own custom parameters to do the same thing if the ones supplied don't suit your needs. If the mesh is too tall then add a '-vscale X' argument with X replaced with a larger value than the default. If your depthmap is too noisy, producing many little triangles on a rough mesh then use '-smooth X' with an X greater than the default 2 smooth passes. Conversely, if your mesh is coming out too smooth then use a smaller number of smooths, such as 1 or 0.
+
+If TGA2STL complains about an invalid TGA format it is likely due to the TGA being run-length encoded. You must find a way to convert it to the raw pixel data formatted TGA, either by loading it in an imaging program and re-exporting it or using a converter of some kind (if one exists?).
+
+
 # Limitations and Requirements
 There are some limitations as to what TGA2STL can work with insofar as the depthmap images themselves are concerned:
 
@@ -51,7 +62,7 @@ There are some limitations as to what TGA2STL can work with insofar as the depth
 
 - Depthmap dimensions must be a power of two. It *will* work with non-power-of-two dimensions, but you'll get a gross pixellated stair-stepping resultant mesh, which is a product of the nearest sampling of the depthmap data. With the addition of a linear interpolation, at the very least, this restriction would be resolved.
 
-- Rectangular depthmaps (i.e. non-square) *do* work but the mesh division doesn't adapt to the image's aspect ratio to keep subdivisions square. The starting base triangle mesh is initialized to the input image dimensions, but divisions still occur at halfway points vertically and horizontally, and are not distributed based on the width/height ratio of the image. Not sure if this is something I'm interested in ever resolving. A temporary fix would be to take your rectangular depthmaps and add margins on the longer sides to make it square.
+- Rectangular depthmaps (i.e. non-square) *do* work but the mesh division doesn't adapt to the image's aspect ratio to keep subdivisions square. The starting base triangle mesh is initialized to the input image aspect ratio, but divisions still occur at halfway points vertically and horizontally, and are not distributed in a absolute homogenous coordinate space. I'm not sure if this is something I'm interested in ever resolving. A temporary fix would be to take your rectangular depthmaps and add margins on the longer sides to make it the image square.
 
 
 # Possible Feature Additions and Enhancements
