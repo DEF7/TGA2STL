@@ -1,5 +1,6 @@
 // main.c - converts a TGA file into an STL mesh
 
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
