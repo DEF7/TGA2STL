@@ -96,8 +96,14 @@ extraResourceOptions=
 [Resource]
 [Other]
 1=todo.txt
+2=changes.txt
 [History]
-todo.txt,224
-patch.c,3146
+patch.c,4707
+patch.h,220
 main.h,211
-main.c,495
+todo.txt,196
+tga.c,870
+math.h,517
+stl.c,349
+changes.txt,2
+main.c,4644

@@ -8,6 +8,7 @@
 #include "math.h"
 #include "patch.h"
 
+// a comment for testing github commit stuff
 
 #define MAX_PATCHNODES				(1 << 24)		// maximum binary-tree triangles
 
@@ -129,21 +130,60 @@ void patch_splittriangle(tri_t *t)
 //
 
 // quick macro for accessing heightmap via XY coordinate
-#define hmap(x, y)		heights[((unsigned int)x + (unsigned int)y * width)]
+#define hmapz(x, y)		heights[((unsigned int)x + (unsigned int)y * width)]
+
+//
+float hmap(float x, float y, int width, int height, float *heights)
+{
+	unsigned int lx, ly, hx, hy;
+	float a, b, c, d, fx, fy;
+
+	lx = (unsigned int)x;
+	ly = (unsigned int)y;
+
+	hx = lx + 1;
+	hy = ly + 1;
+
+	if(hx == width)
+		hx -= 1;
+
+	if(hy == height)
+		hy -= 1;
+
+	fx = x - lx;
+	fy = y - ly;
+
+	a = hmapz(lx, ly);
+	b = hmapz(hx, ly);
+	c = hmapz(lx, hy);
+	d = hmapz(hx, hy);
+
+	return FLERP(FLERP(a, b, fx), FLERP(c, d, fx), fy);
+}
+//
 
 // recursively subdivide triangles until we are down to single pixels
 // or until the triangle conforms to the heightmap within a tolerance
 void patch_recursedivide(tri_t *t, float *heights, int width, int height, float thresh, vec3 left, vec3 apex, vec3 right, float level)
 {
-	vec3 pt, delta = (vec3){ fabs(left.x - right.x), fabs(left.y - right.y), 0 };
-	float z;
+	vec3 pt, napex, delta = (vec3){ fabs(left.x - right.x), fabs(left.y - right.y), 0 };
+	float z = 0;
 
 	// make sure we're not down smaller than heightmap grid
 	if(((delta.x && delta.x <= 1) || (delta.y && delta.y <= 1) || (!delta.x && !delta.y)))
 		return;
 
-	pt = vmix(left, right, 0.5);
-	z = fabs(pt.z - hmap(pt.x, pt.y));
+	napex = vmix(left, right, 0.5);
+
+	pt = napex;							// middle of base
+	z += fabs(pt.z - hmap(pt.x, pt.y, width, height, heights));
+	pt = vmix(apex, napex, 0.5);		// center of triangle
+	z += fabs(pt.z - hmap(pt.x, pt.y, width, height, heights));
+	pt = vmix(right, left, 0.25);		// 1/4 of base
+	z += fabs(pt.z - hmap(pt.x, pt.y, width, height, heights));
+	pt = vmix(right, left, 0.75);		// 3/4 of base
+	z += fabs(pt.z - hmap(pt.x, pt.y, width, height, heights));
+	z *= 0.125;
 
 	// split if it has no children and deviates from heightmap enough
 	if(!t->child[0] && (level <= 3 || z >= thresh * level))
@@ -155,7 +195,7 @@ void patch_recursedivide(tri_t *t, float *heights, int width, int height, float 
 		// get center of hypoteneuse
 		pt = vmix(left, right, 0.5);
 		// use heightmap's z as childrens' apex vertex z
-		pt.z = hmap(pt.x, pt.y);
+		pt.z = hmap(pt.x, pt.y, width, height, heights);
 
 		level = sqrt(level * level + 1);
 		patch_recursedivide(t->child[0], heights, width, height, thresh, apex, pt, left, level);
@@ -174,7 +214,7 @@ void patch_recursemesh(tri_t *t, float *heights, int width, int height, vec3 lef
 	// calculate hypoteneuse center point by averaging endpoints together
 	pt = vscale(vadd(left, right), 0.5);
 	// get actual heightmap value for this horizontal position
-	pt.z = hmap(pt.x, pt.y);
+	pt.z = hmap(pt.x, pt.y, width, height, heights);
 
 	// recurse subdivide
 	if(t->child[0])
@@ -206,10 +246,10 @@ void patch_meshheightmap(float *heights, int width, int height, float hscale, fl
 	pface_t *p;
 	vec3 pts[] =		// outer edge of heightmap, origin triangles
 	{
-		{ 0, 0, hmap(0, 0) },
-		{ width - 1, 0, hmap(width - 1, 0) },
-		{ width - 1, height - 1, hmap(width - 1, height - 1) },
-		{ 0, height - 1, hmap(0, height - 1) }
+		{ 0, 0, hmap(0, 0, width, height, heights) },
+		{ width - 1, 0, hmap(width - 1, 0, width, height, heights) },
+		{ width - 1, height - 1, hmap(width - 1, height - 1, width, height, heights) },
+		{ 0, height - 1, hmap(0, height - 1, width, height, heights) }
 	};
 
 	// initialize root triangles
